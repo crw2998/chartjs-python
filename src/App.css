@@ -1,33 +1,85 @@
-.App {
-  text-align: center;
+.app-container {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+  height: 100vh;
 }
 
-.App-logo {
-  animation: App-logo-spin infinite 20s linear;
-  height: 40vmin;
-  pointer-events: none;
-}
-
-.App-header {
-  background-color: #282c34;
-  min-height: 100vh;
+.controls-container {
   display: flex;
   flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  font-size: calc(10px + 2vmin);
-  color: white;
+  flex-basis: 1;
+  align-self: stretch;
+  overflow: scroll;
+  padding-right: 10px;
 }
 
-.App-link {
-  color: #61dafb;
+.chart-container {
+  flex-grow: 1;
+  align-self: stretch;
+  height: 100vh;
 }
 
-@keyframes App-logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+.controls-row {
+  display: flex;
+  flex-direction: row;
+  justify-content: left;
+}
+
+.parameter-span {
+  display: flex;
+}
+
+.parameter-label {
+  padding: 0px 6px;
+}
+.checkbox-label {
+  align-self: center;
+  padding-left: 10px;
+}
+
+.leq-text {
+  align-self: center;
+}
+
+.function-parameter-div {
+  display: flex;
+  flex-direction: row;
+}
+
+.align-self-center {
+  align-self: center;
+}
+
+.func-param-slider-limit {
+  width: 75px;
+  flex-grow: 3
+}
+
+.func-param-slider {
+  width: 0px;
+  flex-grow: 1;
+}
+.python .MuiInputBase-input {
+  font-family: monospace;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.error-area.MuiTypography-root {
+  font-family: monospace;
+  font-size: 12px;
+  padding-left: 25px;
+  text-indent: -22px;
+  line-height: 1;
+}
+.error-container {
+  background-color: #ffaaaa;
+  margin: 6px 0px 6px 4px ;
+  border-radius: 4px;
+}
+
+.python-container {
+  display: flex;
+  flex-direction: column;
 }

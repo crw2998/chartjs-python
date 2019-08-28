@@ -1,0 +1,16 @@
+{
+  "parserOptions": {
+      "ecmaFeatures": {
+          "jsx": true
+      }
+  },
+  "rules": {
+    "jsx-a11y/label-has-associated-control": [ 2, {
+      "labelComponents": [],
+      "labelAttributes": [],
+      "controlComponents": ["Checkbox"],
+      "depth": 3,
+    }],
+  },
+  "extends": "airbnb"
+}
