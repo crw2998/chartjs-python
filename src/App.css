@@ -1,23 +1,32 @@
 .app-container {
   display: flex;
   flex-direction: row;
-  width: 100vw;
   height: 100vh;
 }
 
 .controls-container {
   display: flex;
   flex-direction: column;
-  flex-basis: 1;
+  flex-shrink: 0;
   align-self: stretch;
   overflow: scroll;
   padding-right: 10px;
+  max-width: 300px;
 }
 
+/*.chartjs-size-monitor {
+  position: inherit;
+}*/
+
 .chart-container {
-  flex-grow: 1;
-  align-self: stretch;
   height: 100vh;
+  position: absolute;
+  width: 100%;
+  margin-left: 0px;
+}
+.interactive-chart-container {
+  width: calc(100% - 320px);
+  margin-left: 320px;
 }
 
 .controls-row {
@@ -72,6 +81,8 @@
   padding-left: 25px;
   text-indent: -22px;
   line-height: 1;
+  word-break: break-word;
+  /*word-wrap: break-word;*/
 }
 .error-container {
   background-color: #ffaaaa;

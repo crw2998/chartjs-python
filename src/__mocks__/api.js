@@ -1,7 +1,3 @@
-import openSocket from 'socket.io-client';
-
-// const socket = openSocket('http://localhost:15555');
-
 const listeners = {};
 let graphUpdateResponse; let
   functionUpdateResponse;

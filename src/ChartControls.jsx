@@ -72,7 +72,6 @@ class ChartControls extends React.Component {
       xmin, xmax, ymin, ymax, yaxAuto,
     } = this.state;
     const { xdefaults } = this.props;
-
     return (
       <div>
         <div className="controls-row">

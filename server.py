@@ -79,12 +79,12 @@ async def get_data(sid, params):
   except Exception as e:
     await sio.emit('update_graph', {"error": exception_as_string(e), "labels": [], "data": []})
     return "ERROR"
-import traceback
 
 @sio.on('get_function_update')
 async def get_data(sid, params):
   global func_params
   try:
+    # exec string throws error or sets f as global
     exec(params["code"], globals())
     func_params_temp = list(f.__code__.co_varnames)[:f.__code__.co_argcount]
     if func_params_temp[0] != "x":

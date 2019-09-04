@@ -1,13 +1,13 @@
 /* eslint no-undef: 0 */
 import React from 'react';
 import { render } from '@testing-library/react';
-import userEvent from '@testing-library/user-event';
+// import userEvent from '@testing-library/user-event';
 import '@testing-library/jest-dom/extend-expect';
 
 import PythonArea from './PythonArea';
+// import { requestFunctionUpdate, subscribeToFunctionUpdates } from './api';
 
 jest.mock('./api');
-import { requestFunctionUpdate, subscribeToFunctionUpdates, setFunctionUpdateResponse } from './api';
 
 const element = (
   <PythonArea
@@ -63,7 +63,7 @@ test('Uses error override data', async () => {
 
 test('Error Override only when error empty', async () => {
   setFunctionUpdateResponse({ error: ['First Error!', 'Second Line of Error!'] });
-  const { getByTestId, findByText, getByText } = render(elementWithErrorOverride);
+  const { getByTestId, findByText } = render(elementWithErrorOverride);
   expect(getByTestId('error-container')).toBeInTheDocument();
   expect(getByTestId('error-container')).toContainElement(await findByText('First Error!'));
   expect(getByTestId('error-container')).toContainElement(await findByText('Second Line of Error!'));

@@ -1,160 +1,117 @@
 import React from 'react';
 import './App.css';
 
-import _ from 'lodash';
-
-import sizeMe from 'react-sizeme';
-
 import { ThemeProvider } from '@material-ui/styles';
 
 import { Scatter } from 'react-chartjs-2';
+import 'chartjs-plugin-datalabels';
 
-import { subscribeToGraphUpdates, requestGraphUpdate, unsubscribeToUpdates } from './api';
+import Chart from 'chart.js';
+import {
+  subscribeToGraphUpdates,
+  requestGraphUpdate,
+  unsubscribeToUpdates,
+  setImageDataHandler,
+  unsubscribeImageDataHandler,
+  sendImageData,
+  fireGraphUpdated,
+} from './api';
 import PythonArea from './PythonArea';
 import FunctionParameters from './FunctionParameters';
 import ChartControls from './ChartControls';
 import theme from './theme';
 
-const staticData = {
-  datasets: [
-    {
-      label: 'f',
-      fill: false,
-      lineTension: 0,
-      backgroundColor: 'rgba(255, 255, 255, 1)',
-      borderColor: 'rgba(0,0,0,1)',
-      borderCapStyle: 'butt',
-      borderDash: [],
-      borderDashOffset: 0.0,
-      borderJoinStyle: 'miter',
-      pointBorderColor: 'rgba(0,0,0,1)',
-      pointBackgroundColor: '#fff',
-      pointBorderWidth: 1,
-      pointHoverRadius: 5,
-      pointHoverBackgroundColor: 'rgba(0,0,0,1)',
-      pointHoverBorderColor: 'rgba(220,220,220,1)',
-      pointHoverBorderWidth: 2,
-      pointRadius: 0,
-      showLine: true,
-      pointHitRadius: 10,
-      yAxisID: 'yax1',
-      xAxisID: 'xax1',
-    },
-  ],
-};
-
 
 class ChartView extends React.Component {
   constructor(props) {
     super(props);
-    subscribeToGraphUpdates((res) => this.setState({
-      labels: res.labels,
-      data: res.data,
-      error: res.error,
-    }));
-    this.xdefaults = { xmin: -5, xmax: 5 };
+    subscribeToGraphUpdates(async (res) => {
+      await this.setState({
+        plotData: res.data,
+        error: res.error,
+        options: res.options,
+        interactive: res.interactive,
+        defaultxmin: res.defaultxmin,
+        plotExtrema: {
+          xmin: res.defaultxmin,
+          xmax: res.defaultxmax,
+        },
+        defaultxmax: res.defaultxmax,
+      });
+      console.log (res);
+      fireGraphUpdated();
+    });
+    setImageDataHandler(() => {
+      // loop for good measure, there should only be one
+      const ids = Object.keys(Chart.instances);
+      for (let i = 0; i < ids.length; i += 1) {
+        const imageData = Chart.instances[ids[i]].toBase64Image();
+        sendImageData(imageData);
+        break;
+      }
+    });
     this.state = {
       plotExtrema: {
-        xmin: this.xdefaults.xmin,
-        xmax: this.xdefaults.xmax,
+        xmin: -5,
+        xmax: 5,
         ymin: undefined,
         ymax: undefined,
       },
-      data: [],
-      labels: [],
       parameterNames: [],
       params: {},
+      plotData: { datasets: [] },
     };
-    this.updateData();
+  }
+
+  componentDidUpdate() {
+    const ids = Object.keys(Chart.instances);
+    for (let i = 0; i < ids.length; i += 1) {
+      Chart.instances[ids[i]].resize();
+    }
   }
 
   componentWillUnmount() {
+    unsubscribeImageDataHandler();
     unsubscribeToUpdates();
   }
 
   updateData() {
     const {
-      params, plotExtrema: {
+      params,
+      plotExtrema: {
         xmin, xmax, ymin, ymax,
       },
     } = this.state;
     const paramsForPython = {
       xmin,
       xmax,
-      ymin,
-      ymax,
+      ymin: ymin === '' ? undefined : ymin,
+      ymax: ymax === '' ? undefined : ymax,
       parameters: params,
     };
     requestGraphUpdate(paramsForPython);
   }
 
+
   async update(stateUpdate) {
     if (Object.prototype.hasOwnProperty.call(stateUpdate, 'parameterNames') && stateUpdate.parameterNames === null) {
       return;
     }
-    await this.setState(stateUpdate);
+    await this.setState(stateUpdate); // yeah yeah callbacks instead of await, but this is prettier
     this.updateData();
   }
 
   render() {
-    const { labels, data } = this.state;
-    const plotData = staticData;
-
-    plotData.datasets[0].data = [];
-    for (let i = 0; i < labels.length; i += 1) {
-      plotData.datasets[0].data.push({
-        x: _.round(labels[i], 3),
-        y: _.round(data[i], 3),
-      });
-    }
     const {
-      plotExtrema: {
-        ymin, ymax, xmin, xmax,
-      },
+      error, parameterNames, options, plotData, interactive, defaultxmin, defaultxmax,
     } = this.state;
-    const options = {
-      animation: false, // {
-      // duration: 0
-      // }
-      responsive: true,
-      maintainAspectRatio: false,
-      scales: {
-        yAxes: [{
-          id: 'yax1',
-          // type: 'linear',
-          display: true,
-          gridLines: {
-            color: 'lightgray',
-            zeroLineColor: 'black',
-          },
-          ticks: {
-            min: ymin === '' ? undefined : ymin,
-            max: ymax === '' ? undefined : ymax,
-          },
-        }],
-        xAxes: [{
-          id: 'xax1',
-          // type: 'linear',
-          display: true,
-          gridLines: {
-            color: 'lightgray',
-            zeroLineColor: 'black',
-          },
-          ticks: {
-            min: xmin,
-            max: xmax,
-          },
-        }],
-      },
-    };
-
-    const { error, parameterNames } = this.state;
     const pythonError = error || '';
-    return (
-      <div className="app-container">
+    let controls;
+    if (interactive) {
+      controls = (
         <div className="controls-container">
           <ChartControls
-            xdefaults={this.xdefaults}
+            xdefaults={{ xmin: defaultxmin, xmax: defaultxmax }}
             onChange={(params) => this.update({ plotExtrema: params })}
           />
           <PythonArea
@@ -167,7 +124,12 @@ class ChartView extends React.Component {
             onChange={(params) => this.update({ params })}
           />
         </div>
-        <div className="chart-container">
+      );
+    }
+    return (
+      <div className="app-container">
+        {controls}
+        <div className={`chart-container${interactive ? ' interactive-chart-container' : ''}`}>
           <Scatter data={plotData} options={options} />
         </div>
       </div>
@@ -176,12 +138,7 @@ class ChartView extends React.Component {
 }
 
 function App() {
-  const SizedChartView = sizeMe({ monitorHeight: true })(ChartView);
-  return (
-    <div className="App">
-      <ThemeProvider theme={theme}><SizedChartView /></ThemeProvider>
-    </div>
-  );
+  return <ThemeProvider theme={theme}><ChartView /></ThemeProvider>;
 }
 
 export default App;
