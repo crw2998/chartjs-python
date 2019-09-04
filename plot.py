@@ -130,18 +130,34 @@ class _Plot(object):
     data["yAxisID"] = self._yaxis.get_id()
     return data
 
+  def _normalize_array(self, arr):
+    res = []
+    for x in arr:
+      if 'numpy' in str(type(x)):
+        res.append(float(x))
+      else:
+        res.append(x)
+    return res
+
   def scatter(self, xvals: List[float], yvals : List[float],
               labels : Optional[List[str]] = None,
+              label_size : Optional[float] = None,
+              label_color : Optional[str] = "#000",
               size : Optional[Union[float, List[float]]] = None,
               color : Optional[Union[str, List[str]]] = None,
               linecolor : str = "#000"):
     self._xlims = min(xvals), max(xvals)
     self._ylims = min(yvals), max(yvals)
+    xvals = self._normalize_array(xvals)
+    yvals = self._normalize_array(yvals)
     self._dataset["data"] = [{"x": x, "y": y} for (x, y) in zip(xvals, yvals)]
     self._dataset["borderColor"] = linecolor
     self._dataset["pointHoverBackgroundColor"] = linecolor
     if labels is not None:
       self._dataset["datalabels"]["display"] = True
+      self._dataset["datalabels"]["font"] = {}
+      self._dataset["datalabels"]["color"] = label_color
+      self._dataset["datalabels"]["font"]["size"] = label_size
       self._dataset["data"] = [{"x": x, "y": y, "label": l} for (x, y, l) in zip(xvals, yvals, labels)]
     else:
       self._dataset["data"] = [{"x": x, "y": y} for (x, y) in zip(xvals, yvals)]

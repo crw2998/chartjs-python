@@ -53,3 +53,7 @@ class PuppeteerBrowser(object):
     with contextlib.suppress(Exception):
       await self.browser.close()
 
+  async def take_screenshot(self, params):
+    canvas = await self.page.querySelector('canvas')
+    await canvas.screenshot(params)
+

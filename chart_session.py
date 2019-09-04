@@ -21,7 +21,7 @@ DEFAULT_HOST = "localhost"
 STATIC_FILES = os.path.join(os.path.dirname(__file__), "build")
 
 RENDER_TIMEOUT = 5
-SAVE_TIMEOUT = 7
+SAVE_TIMEOUT = 30
 BROWSER_LOAD_TIMEOUT = 10
 DISCONNECT_TIMEOUT = 4
 
@@ -86,10 +86,11 @@ class ChartSession(object):
   # context manager syntax handles server spinup and teardown
   def __enter__(self):
     self.event_loop = asyncio.new_event_loop()
-    asyncio.set_event_loop(self.event_loop)
+    
     # puppeteer can only run from main thread due to multiprocessing things.
     self.main_thread_event_loop = asyncio.new_event_loop()
     # run the server both asynchronously and on a separate thread.
+    asyncio.set_event_loop(self.main_thread_event_loop)
 
     # Start event loop on separate thread. We can throw coroutines at this event loop
     # from anywhere (any thread) we want, and wait on them to finish (if necessary) by
@@ -204,9 +205,6 @@ class ChartSession(object):
 
   # save the figure as a png
   def save(self, filename):
-    self._save_file = filename
-    future = asyncio.run_coroutine_threadsafe(self._request_image_data(), self.event_loop)
-    if not future.result():  # waits until coroutine is executed
-      raise RuntimeError("Could not contact browser to get image data")
-    self._save_file = None
+    params = {"path": filename}
+    self.main_thread_event_loop.run_until_complete(self._browser.take_screenshot(params))
 
