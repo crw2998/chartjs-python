@@ -10,14 +10,15 @@ import binascii
 
 import random
 import string
+import os
 
-from plot import _Figure
-from utils import exception_as_string, wait_with_timeout
-from browser_controller import PuppeteerBrowser, SimpleBrowser
+from .plot import _Figure
+from .utils import exception_as_string, wait_with_timeout
+from .browser_controller import PuppeteerBrowser, SimpleBrowser
 
 DEFAULT_PORT = 15555
 DEFAULT_HOST = "localhost"
-STATIC_FILES = "build"
+STATIC_FILES = os.path.join(os.path.dirname(__file__), "build")
 
 RENDER_TIMEOUT = 5
 SAVE_TIMEOUT = 7
@@ -57,7 +58,7 @@ class ChartSession(object):
       self.sio.on("connect", self._record_connection)
       self.sio.on("disconnect", self._remove_connection)
 
-      self.app.router.add_static("/", "build/")
+      self.app.router.add_static("/", STATIC_FILES)
       self.runner = aiohttp.web.AppRunner(self.app)
       await self.runner.setup()
       self.site = aiohttp.web.TCPSite(self.runner, self.host, self.port)
@@ -136,7 +137,7 @@ class ChartSession(object):
   async def _open_page(self):
     self._browser = PuppeteerBrowser(use_scale_factor=self._retina)
     await self._browser.start_browser()
-    await self._browser.open_page(f"http://{self.host}:{3000}/index.html")
+    await self._browser.open_page(f"http://{self.host}:{self.port}/index.html")
     return True
 
   async def _update(self, sid, params):

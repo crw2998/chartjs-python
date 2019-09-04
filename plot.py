@@ -6,7 +6,7 @@ from typing import Union, Optional, List, Tuple
 import numpy as np
 import scipy
 
-from utils import exception_as_string
+from .utils import exception_as_string
 
 class _Figure(object):
   def __init__(self):

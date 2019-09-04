@@ -1,4 +1,4 @@
-from chart_session import ChartSession
+from .chart_session import ChartSession
 
 def ex1():
   with ChartSession() as session:
