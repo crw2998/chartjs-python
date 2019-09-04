@@ -5,7 +5,7 @@ pip install -r requirements.txt
 npm install
 npm run build
 ```
-Note that this package requires `Python^=3.6`. Part of the purpose of my writing it was to learn some features of Python introduced in 3.5-3.6. It'd be reasonable to port to 3.5 (maybe just removing fancy-style format strings?) but pretty unreasonable to port to 2.7.
+Note that this package requires `Python>=3.6`. Part of the purpose of my writing it was to use some features of Python introduced in 3.5-3.6. It'd be reasonable to port to 3.5 (maybe just removing fancy-style format strings?) but pretty unreasonable to port to 2.7.
 
 ## Usage
 See `examples.py`.
