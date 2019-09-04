@@ -50,6 +50,6 @@ class PuppeteerBrowser(object):
     });
 
   async def try_close(self):
-    # with contextlib.suppress(Exception):
+    with contextlib.suppress(Exception):
       await self.browser.close()
 
