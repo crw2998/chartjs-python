@@ -14,7 +14,6 @@ import string
 from plot import _Figure
 from utils import exception_as_string, wait_with_timeout
 from browser_controller import PuppeteerBrowser, SimpleBrowser
-from time import sleep
 
 DEFAULT_PORT = 15555
 DEFAULT_HOST = "localhost"
